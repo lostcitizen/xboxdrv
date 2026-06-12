@@ -129,6 +129,13 @@ Xbox360WirelessController::parse(uint8_t* data, int len, XboxGenericMsg* msg_out
         m_battery_status = data[17];
         log_info("Serial: " << m_serial);
         log_info("Battery Status: " << m_battery_status);
+
+        // Re-apply the LED status on (re)connect. Some third-party/clone
+        // receivers do not emit the 0x08 0x80 "controller connected" status
+        // packet when a controller re-pairs (e.g. after a battery swap); they
+        // only resend this Initial Announce Message. Without this the player
+        // LED ring keeps blinking after every reconnect even though input works.
+        set_led_real(get_led());
       }
       else if (data[0] == 0x00 && data[1] == 0x01 && data[2] == 0x00 && data[3] == 0xf0 && data[4] == 0x00 && data[5] == 0x13)
       { // Event message
